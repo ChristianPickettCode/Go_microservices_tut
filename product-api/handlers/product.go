@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -21,7 +22,10 @@ func NewProducts(l *log.Logger) *Products {
 }
 
 func (p *Products) GetProducts(rw http.ResponseWriter, r *http.Request) {
+	p.l.Println("Handle POST product")
+
 	lp := data.GetProducts()
+
 	err := lp.ToJSON(rw)
 	if err != nil {
 		http.Error(rw, "Unable to marshal json", http.StatusInternalServerError)
@@ -33,7 +37,6 @@ func (p *Products) AddProducts(rw http.ResponseWriter, r *http.Request) {
 
 	prod := r.Context().Value(KeyProduct{}).(data.Product)
 	data.AddProduct(&prod)
-
 }
 
 func (p *Products) UpdateProducts(rw http.ResponseWriter, r *http.Request) {
@@ -70,6 +73,17 @@ func (p Products) MiddlewareValidateProduct(next http.Handler) http.Handler {
 		if err != nil {
 			p.l.Println("[ERROR] deserializing product", err)
 			http.Error(rw, "Error reading product", http.StatusBadRequest)
+			return
+		}
+
+		err = prod.Validate()
+		if err != nil {
+			p.l.Println("[ERROR] validating product", err)
+			http.Error(
+				rw,
+				fmt.Sprintf("Error validating product: %s", err),
+				http.StatusBadRequest,
+			)
 			return
 		}
 
