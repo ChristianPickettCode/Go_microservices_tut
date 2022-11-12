@@ -28,7 +28,7 @@ func main() {
 
 	defer conn.Close()
 
-	cc := protos.NewCurrencyClient()
+	cc := protos.NewCurrencyClient(conn)
 
 	// create the handlers
 	ph := handlers.NewProducts(l, v, cc)
