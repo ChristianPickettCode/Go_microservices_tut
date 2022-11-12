@@ -18,7 +18,7 @@ type KeyProduct struct{}
 type Products struct {
 	l *log.Logger
 	v *data.Validation
-	cc *protos.CurrencyClient
+	cc protos.CurrencyClient
 }
 
 // NewProducts returns a new products handler with the given logger
